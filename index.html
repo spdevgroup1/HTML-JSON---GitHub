@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Update JSON in GitHub Repo</title>
+</head>
+<body>
+  <h2>Update JSON File</h2>
+  <form id="updateForm">
+    <label>Name: <input type="text" name="name" required></label><br><br>
+    <label>Email: <input type="email" name="email" required></label><br><br>
+    <button type="submit">Save</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    document.getElementById('updateForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const formData = new FormData(this);
+      const jsonData = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch(
+          'https://api.github.com/repos/manager@spdevgroup.com/HTML-JSON---GitHub/dispatches',
+          {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/vnd.github+json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              event_type: 'update-json',
+              client_payload: jsonData
+            })
+          }
+        );
+
+        if (res.ok) {
+          document.getElementById('status').textContent = 'Update request sent! The file will update in ~10s.';
+        } else {
+          const errText = await res.text();
+          document.getElementById('status').textContent = 'Failed: ' + errText;
+        }
+      } catch (err) {
+        document.getElementById('status').textContent = 'Error sending request.';
+      }
+    });
+  </script>
+</body>
+</html>

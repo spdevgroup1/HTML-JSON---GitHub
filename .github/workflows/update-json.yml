@@ -1,0 +1,30 @@
+name: Update JSON File
+
+on:
+  repository_dispatch:
+    types: [update-json]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Write new JSON object
+        run: |
+          FILE="data.json"
+          PAYLOAD='${{ toJson(github.event.client_payload) }}'
+
+          # Overwrite file with the new JSON object
+          echo "$PAYLOAD" > "$FILE"
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git commit -m "Overwrite JSON via GitHub Actions"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
